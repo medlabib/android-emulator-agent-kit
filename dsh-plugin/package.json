@@ -1,0 +1,14 @@
+{
+  "name": "dsh-android-emulator-lab",
+  "version": "0.2.0",
+  "description": "Local Android Studio AVD control tools for DeepSeek Harness",
+  "type": "module",
+  "main": "index.js",
+  "files": ["index.js", "cordis.patch.yml", "README.md"],
+  "engines": { "node": ">=20" },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/dsh-tools": "*"
+  },
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}
