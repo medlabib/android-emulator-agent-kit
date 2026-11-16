@@ -53,6 +53,7 @@ Verify the device:
 ```bash
 adb devices -l
 python tools/android_lab.py devices
+python tools/android_lab.py doctor --json
 python tools/android_lab.py verify --serial emulator-5554
 ```
 
@@ -150,3 +151,6 @@ The stdlib-only CLI supports explicit-target boot readiness, APK install/launch,
 Commands also accept `--json` for machine-readable output, for example:
 `python tools/android_lab.py devices --json` or
 `python tools/android_lab.py verify --serial emulator-5554 --json`.
+The `doctor` command checks ADB availability and whether at least one device is ready;
+it does not select a target. With `--json`, command failures are emitted as
+`{"ok": false, "error": "..."}` on stderr and retain a non-zero exit code.
