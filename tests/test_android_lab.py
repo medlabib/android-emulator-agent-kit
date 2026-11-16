@@ -1,7 +1,8 @@
 import subprocess
 import unittest
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
-from tools.android_lab import adb, encode_input_text, package_id, run
+from tools.android_lab import adb, encode_input_text, package_id, run, verify, wait_boot
 
 class AndroidLabTests(unittest.TestCase):
     def test_text_spaces_are_encoded(self):
@@ -26,5 +27,24 @@ class AndroidLabTests(unittest.TestCase):
     def test_timeout_is_actionable(self,mock_run):
         mock_run.side_effect=subprocess.TimeoutExpired(["adb","devices"],1)
         with self.assertRaisesRegex(RuntimeError,"timed out"): run(["adb","devices"],timeout=1)
+
+    @patch("tools.android_lab.subprocess.run", side_effect=FileNotFoundError)
+    def test_missing_adb_is_actionable(self, _mock_run):
+        with self.assertRaisesRegex(RuntimeError, "Command not found: adb"):
+            run(["adb", "devices"])
+
+    @patch("tools.android_lab.adb")
+    def test_verify_requires_boot_completion(self, mock_adb):
+        mock_adb.side_effect = [
+            "package:com.android.vending\npackage:com.google.android.gms",
+            "14", "34", "0",
+        ]
+        with self.assertRaises(SystemExit) as error:
+            verify(SimpleNamespace(serial="emulator-5554"))
+        self.assertEqual(error.exception.code, 2)
+
+    def test_wait_boot_rejects_non_positive_timeout(self):
+        with self.assertRaisesRegex(ValueError, "at least 1"):
+            wait_boot(SimpleNamespace(serial="emulator-5554", timeout=0))
 
 if __name__=="__main__": unittest.main()
