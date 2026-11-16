@@ -1,8 +1,11 @@
+import contextlib
+import io
+import json
 import subprocess
 import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
-from tools.android_lab import adb, encode_input_text, package_id, run, verify, wait_boot
+from tools.android_lab import adb, devices, encode_input_text, package_id, run, verify, wait_boot
 
 class AndroidLabTests(unittest.TestCase):
     def test_text_spaces_are_encoded(self):
@@ -40,11 +43,21 @@ class AndroidLabTests(unittest.TestCase):
             "14", "34", "0",
         ]
         with self.assertRaises(SystemExit) as error:
-            verify(SimpleNamespace(serial="emulator-5554"))
+            verify(SimpleNamespace(serial="emulator-5554", json=False))
         self.assertEqual(error.exception.code, 2)
 
     def test_wait_boot_rejects_non_positive_timeout(self):
         with self.assertRaisesRegex(ValueError, "at least 1"):
             wait_boot(SimpleNamespace(serial="emulator-5554", timeout=0))
+
+    @patch("tools.android_lab.run", return_value="List of devices attached\nemulator-5554\tdevice product:sdk model:Pixel")
+    def test_devices_json_is_machine_readable(self, _run):
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            devices(SimpleNamespace(json=True))
+        self.assertEqual(
+            json.loads(output.getvalue()),
+            {"devices": [{"serial": "emulator-5554", "state": "device", "details": ["product:sdk", "model:Pixel"]}]},
+        )
 
 if __name__=="__main__": unittest.main()
