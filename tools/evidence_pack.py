@@ -9,7 +9,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import platform
 import re
 import subprocess
@@ -106,6 +105,8 @@ def build_bundle(report: Path, output: Path, metadata_path: Path | None = None,
         if source is None:
             missing_links.append(link)
             continue
+        if source == report:
+            continue
         relative = source.relative_to(report.parent.resolve()).as_posix()
         entries[relative] = source
 
@@ -118,6 +119,9 @@ def build_bundle(report: Path, output: Path, metadata_path: Path | None = None,
         if archive_name in entries or archive_name == "journey.md":
             archive_name = f"attachments/{index:03d}-{name}"
         entries[archive_name] = source
+
+    if output == report or output in entries.values():
+        raise ValueError("Output archive cannot overwrite the report or an included evidence file.")
 
     metadata = load_metadata(metadata_path)
     manifest = {
