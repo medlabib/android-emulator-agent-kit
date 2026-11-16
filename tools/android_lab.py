@@ -38,17 +38,32 @@ def encode_input_text(v):
     if not re.fullmatch(r"[A-Za-z0-9 .,_@+:-]+",v): raise ValueError("Text accepts letters, digits, spaces, and . , _ @ + : -. Use Appium for Unicode or other characters.")
     return v.replace(" ","%s")
 
-def devices(a):
-    raw = run([ADB,"devices","-l"],check=False)
-    if not a.json:
-        print(raw)
-        return
+def parse_devices(raw):
     entries = []
     for line in raw.splitlines()[1:]:
         fields = line.split()
         if fields:
             entries.append({"serial": fields[0], "state": fields[1] if len(fields) > 1 else "", "details": fields[2:]})
-    emit({"devices": entries}, True)
+    return entries
+
+def devices(a):
+    raw = run([ADB,"devices","-l"],check=False)
+    if not a.json:
+        print(raw)
+        return
+    emit({"devices": parse_devices(raw)}, True)
+
+def doctor(a):
+    result = {"adb": {"ok": False}, "devices": [], "ready": False}
+    try:
+        result["adb"] = {"ok": True, "version": run([ADB, "version"])}
+        result["devices"] = parse_devices(run([ADB, "devices", "-l"], check=False))
+        result["ready"] = any(device["state"] == "device" for device in result["devices"])
+    except RuntimeError as error:
+        result["adb"] = {"ok": False, "error": str(error)}
+    emit(result, a.json)
+    if not result["adb"]["ok"] or not result["ready"]:
+        sys.exit(2)
 def verify(a):
     pkgs=adb(a.serial,"shell","pm","list","packages")
     d={"serial":a.serial,"android_release":adb(a.serial,"shell","getprop","ro.build.version.release"),"api_level":adb(a.serial,"shell","getprop","ro.build.version.sdk"),"play_store":"com.android.vending" in pkgs,"google_play_services":"com.google.android.gms" in pkgs,"boot_completed":adb(a.serial,"shell","getprop","sys.boot_completed")}
@@ -114,9 +129,11 @@ def logs(a):
 def main():
     p=argparse.ArgumentParser(description=__doc__); s=p.add_subparsers(required=True)
     q=s.add_parser("devices"); q.add_argument("--json",action="store_true"); q.set_defaults(fn=devices)
-    commands={"verify":verify,"wait-boot":wait_boot,"install":install,"launch":launch,"app-info":app_info,"force-stop":force_stop,"tap":tap,"swipe":swipe,"type":type_text,"keyevent":keyevent,"screenshot":capture,"ui-dump":dump_ui,"logcat":logs}
+    commands={"doctor":doctor,"verify":verify,"wait-boot":wait_boot,"install":install,"launch":launch,"app-info":app_info,"force-stop":force_stop,"tap":tap,"swipe":swipe,"type":type_text,"keyevent":keyevent,"screenshot":capture,"ui-dump":dump_ui,"logcat":logs}
     for name,fn in commands.items():
-        q=s.add_parser(name); q.add_argument("--serial",required=True); q.add_argument("--json",action="store_true"); q.set_defaults(fn=fn)
+        q=s.add_parser(name); q.add_argument("--json",action="store_true")
+        if name != "doctor": q.add_argument("--serial",required=True)
+        q.set_defaults(fn=fn)
         if name=="wait-boot": q.add_argument("--timeout",type=int,default=180)
         if name=="install": q.add_argument("--apk",required=True)
         if name in ("launch","app-info","force-stop"): q.add_argument("--package",required=True)
@@ -132,5 +149,10 @@ def main():
             q.add_argument("--lines",type=int,default=3000); q.add_argument("--filter",default=""); q.add_argument("--output",default="artifacts/logcat.txt")
     a=p.parse_args()
     try: a.fn(a)
-    except Exception as e: print(f"ERROR: {e}",file=sys.stderr); sys.exit(1)
+    except Exception as e:
+        if getattr(a, "json", False):
+            print(json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False), file=sys.stderr)
+        else:
+            print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
 if __name__=="__main__": main()

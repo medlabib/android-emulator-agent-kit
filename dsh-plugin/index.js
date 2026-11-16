@@ -104,8 +104,10 @@ export function apply(ctx) {
     } })
   register(ctx, { name: 'android_type_text', description: 'Type non-sensitive text into the focused Android field. Never use for passwords or tokens.', parameters: { serial: { type: 'string', required: true }, text: { type: 'string', required: true } }, properties: { output: { type: 'string' } },
     async execute({ serial, text }) {
-      if (text.length > 500) throw new Error('Text is limited to 500 characters.')
-      const escaped = text.replace(/%/g, '%25').replace(/ /g, '%s').replace(/&/g, '\\&').replace(/[<>|;]/g, '')
+      if (!text || text.length > 500 || !/^[A-Za-z0-9 .,_@+:-]+$/.test(text)) {
+        throw new Error('Text accepts 1–500 ASCII characters: letters, digits, spaces, and . , _ @ + : -. Use Appium for Unicode or complex input.')
+      }
+      const escaped = text.replace(/ /g, '%s')
       const r = await run(adbPath, [...serialArgs(serial), 'shell', 'input', 'text', escaped])
       return { ok: r.ok, output: r.stdout || r.error || 'Text input sent.' }
     } })

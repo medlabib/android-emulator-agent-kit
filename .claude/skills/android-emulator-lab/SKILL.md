@@ -170,6 +170,7 @@ Limitations
 
 ```bash
 python tools/android_lab.py devices
+python tools/android_lab.py doctor --json
 python tools/android_lab.py wait-boot --serial emulator-5554
 python tools/android_lab.py verify --serial emulator-5554
 python tools/android_lab.py install --serial emulator-5554 --apk path/to/debug.apk
@@ -186,3 +187,4 @@ python tools/android_lab.py force-stop --serial emulator-5554 --package com.exam
 ```
 
 Text entry is limited to a conservative ASCII subset to avoid shell metacharacter surprises. Use Appium for Unicode, complex input, and selector-based interaction. Force-stop terminates the app process but does not clear app data. No command silently selects a device.
+Use `doctor` before selecting a serial when diagnosing setup failures. With `--json`, errors are machine-readable on stderr and commands preserve non-zero exit codes.

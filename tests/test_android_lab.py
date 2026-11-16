@@ -5,7 +5,7 @@ import subprocess
 import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
-from tools.android_lab import adb, devices, encode_input_text, package_id, run, verify, wait_boot
+from tools.android_lab import adb, devices, doctor, encode_input_text, package_id, parse_devices, run, verify, wait_boot
 
 class AndroidLabTests(unittest.TestCase):
     def test_text_spaces_are_encoded(self):
@@ -59,5 +59,24 @@ class AndroidLabTests(unittest.TestCase):
             json.loads(output.getvalue()),
             {"devices": [{"serial": "emulator-5554", "state": "device", "details": ["product:sdk", "model:Pixel"]}]},
         )
+
+    def test_device_parser_preserves_offline_and_unauthorized_states(self):
+        raw = "List of devices attached\none offline\ntwo unauthorized usb:1-1\n"
+        self.assertEqual(
+            parse_devices(raw),
+            [
+                {"serial": "one", "state": "offline", "details": []},
+                {"serial": "two", "state": "unauthorized", "details": ["usb:1-1"]},
+            ],
+        )
+
+    @patch("tools.android_lab.run")
+    def test_doctor_reports_no_ready_device(self, mock_run):
+        mock_run.side_effect = ["Android Debug Bridge version 1.0", "List of devices attached\none offline"]
+        output = io.StringIO()
+        with self.assertRaises(SystemExit) as error, contextlib.redirect_stdout(output):
+            doctor(SimpleNamespace(json=True))
+        self.assertEqual(error.exception.code, 2)
+        self.assertEqual(json.loads(output.getvalue())["ready"], False)
 
 if __name__=="__main__": unittest.main()
