@@ -27,3 +27,16 @@ Use a plan/act/observe loop rather than unbounded tapping.
 ## Not proven by a Google Play AVD
 
 A Google Play system image provides Play Store and Google Play services packages, but does not prove Play Integrity certification or physical-device behavior. Use a certified physical handset for NFC, Bluetooth accessories, telephony, hardware attestation, OEM camera stacks, Wallet/banking workflows, and any release gate that depends on those features.
+
+## Running emulator integration tests
+
+The normal unit-test suite never requires an emulator. To run the opt-in integration checks:
+
+```bash
+ANDROID_LAB_INTEGRATION=1 \
+ANDROID_SERIAL=emulator-5554 \
+python -m unittest tests.test_integration_android_lab -v
+```
+
+The selected serial must be boot-complete before running the tests. These checks are
+evidence for the configured emulator only; they do not replace physical-device testing.
