@@ -53,7 +53,7 @@ if [[ ! -f "$CONFIG" ]]; then
 fi
 for key in hw.camera.back hw.camera.front; do
   if grep -q "^${key}=" "$CONFIG"; then
-    sed -i.bak "s|^${key}=.*| ${key}=webcam0|" "$CONFIG"
+    sed -i.bak "s|^${key}=.*|${key}=webcam0|" "$CONFIG"
   else
     echo "${key}=webcam0" >> "$CONFIG"
   fi
