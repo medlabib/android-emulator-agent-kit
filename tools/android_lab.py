@@ -4,7 +4,7 @@ import argparse, json, os, pathlib, re, subprocess, sys, time
 
 ADB = os.getenv("ANDROID_ADB", "adb")
 KEYS = {"BACK":"4","HOME":"3","ENTER":"66","TAB":"61","DPAD_UP":"19","DPAD_DOWN":"20","DPAD_LEFT":"21","DPAD_RIGHT":"22"}
-PACKAGE_RE = re.compile(r"^[A-Za-z0-9_]+(?:\\.[A-Za-z0-9_]+)+$")
+PACKAGE_RE = re.compile(r"^[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+$")
 
 def run(cmd, timeout=60, check=True):
     try: p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
@@ -46,7 +46,7 @@ def app_info(a):
     pkg=package_id(a.package); raw=adb(a.serial,"shell","dumpsys","package",pkg,timeout=30,check=False)
     if not raw: raise RuntimeError(f"No package information for {pkg}; is it installed?")
     out={"serial":a.serial,"package":pkg}
-    for key,pat in {"version_name":r"versionName=([^\\s]+)","version_code":r"versionCode=(\\d+)","first_install_time":r"firstInstallTime=([^\\n]+)","last_update_time":r"lastUpdateTime=([^\\n]+)"}.items():
+    for key,pat in {"version_name":r"versionName=([^\s]+)","version_code":r"versionCode=(\d+)","first_install_time":r"firstInstallTime=([^\n]+)","last_update_time":r"lastUpdateTime=([^\n]+)"}.items():
         m=re.search(pat,raw)
         if m: out[key]=m.group(1).strip()
     print(json.dumps(out,indent=2))
