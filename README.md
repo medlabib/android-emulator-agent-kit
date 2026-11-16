@@ -6,7 +6,7 @@ This project is evolving to complement [Google's official Android CLI](https://d
 
 ![Status](https://img.shields.io/badge/status-experimental-orange)
 ![License](https://img.shields.io/badge/license-Apache--2.0-22c55e)
-![Local first](https://img.shields.io/badge/local--first-ADB%20%2B%20AVD-7c3aed)
+![Local first](https://img.shields.io/badge/local--first-no%20cloud%20upload-7c3aed)
 
 ## Why this is changing
 
