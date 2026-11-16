@@ -141,3 +141,8 @@ Apache-2.0. See [LICENSE](LICENSE).
 
 ---
 **Built for local-first, agent-driven Android testing.**
+
+
+## Python CLI interaction commands
+
+The stdlib-only CLI supports explicit-target boot readiness, APK install/launch, package metadata, taps, swipes, constrained text entry, navigation key events, screenshots, UI hierarchy dumps, logcat, and app force-stop. Run `python tools/android_lab.py --help` for the full command list. Every device operation requires `--serial`; the CLI never guesses which emulator to control. Text entry intentionally accepts a conservative ASCII subset; use Appium for Unicode and selector-based interaction.

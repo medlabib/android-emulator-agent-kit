@@ -164,3 +164,25 @@ Defects
 Limitations
 - Emulator-specific caveats:
 ```
+
+
+## CLI reference
+
+```bash
+python tools/android_lab.py devices
+python tools/android_lab.py wait-boot --serial emulator-5554
+python tools/android_lab.py verify --serial emulator-5554
+python tools/android_lab.py install --serial emulator-5554 --apk path/to/debug.apk
+python tools/android_lab.py launch --serial emulator-5554 --package com.example.app
+python tools/android_lab.py app-info --serial emulator-5554 --package com.example.app
+python tools/android_lab.py tap --serial emulator-5554 --x 540 --y 900
+python tools/android_lab.py swipe --serial emulator-5554 --x1 540 --y1 1500 --x2 540 --y2 400
+python tools/android_lab.py type --serial emulator-5554 --text 'test account'
+python tools/android_lab.py keyevent --serial emulator-5554 --key BACK
+python tools/android_lab.py screenshot --serial emulator-5554
+python tools/android_lab.py ui-dump --serial emulator-5554
+python tools/android_lab.py logcat --serial emulator-5554 --filter FATAL
+python tools/android_lab.py force-stop --serial emulator-5554 --package com.example.app
+```
+
+Text entry is limited to a conservative ASCII subset to avoid shell metacharacter surprises. Use Appium for Unicode, complex input, and selector-based interaction. Force-stop terminates the app process but does not clear app data. No command silently selects a device.
