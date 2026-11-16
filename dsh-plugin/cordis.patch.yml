@@ -1,0 +1,3 @@
+- insert:
+    - id: android-emulator-lab
+      name: dsh-android-emulator-lab
