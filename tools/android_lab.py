@@ -7,9 +7,14 @@ KEYS = {"BACK":"4","HOME":"3","ENTER":"66","TAB":"61","DPAD_UP":"19","DPAD_DOWN"
 PACKAGE_RE = re.compile(r"^[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+$")
 
 def run(cmd, timeout=60, check=True):
-    try: p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-    except subprocess.TimeoutExpired as e: raise RuntimeError(f"Command timed out after {timeout}s: {' '.join(map(str,cmd))}") from e
-    if check and p.returncode: raise RuntimeError(f"Command failed ({p.returncode}): {' '.join(map(str,cmd))}\n{(p.stderr or p.stdout).strip()}")
+    try:
+        p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout)
+    except FileNotFoundError as e:
+        raise RuntimeError(f"Command not found: {cmd[0]}") from e
+    except subprocess.TimeoutExpired as e:
+        raise RuntimeError(f"Command timed out after {timeout}s: {' '.join(map(str,cmd))}") from e
+    if check and p.returncode:
+        raise RuntimeError(f"Command failed ({p.returncode}): {' '.join(map(str,cmd))}\n{(p.stderr or p.stdout).strip()}")
     return p.stdout.strip()
 
 def adb(serial,*args,timeout=60,check=True):
@@ -30,12 +35,13 @@ def verify(a):
     pkgs=adb(a.serial,"shell","pm","list","packages")
     d={"serial":a.serial,"android_release":adb(a.serial,"shell","getprop","ro.build.version.release"),"api_level":adb(a.serial,"shell","getprop","ro.build.version.sdk"),"play_store":"com.android.vending" in pkgs,"google_play_services":"com.google.android.gms" in pkgs,"boot_completed":adb(a.serial,"shell","getprop","sys.boot_completed")}
     print(json.dumps(d,indent=2))
-    if not (d["play_store"] and d["google_play_services"]): sys.exit(2)
+    if d["boot_completed"] != "1" or not (d["play_store"] and d["google_play_services"]): sys.exit(2)
 def wait_boot(a):
+    if a.timeout < 1: raise ValueError("--timeout must be at least 1 second.")
     end=time.monotonic()+a.timeout; adb(a.serial,"wait-for-device",timeout=a.timeout)
     while time.monotonic()<end:
         if adb(a.serial,"shell","getprop","sys.boot_completed",timeout=10,check=False)=="1": print(f"{a.serial}: boot completed"); return
-        time.sleep(2)
+        time.sleep(min(2, max(0, end-time.monotonic())))
     raise RuntimeError(f"{a.serial}: boot not confirmed within {a.timeout}s")
 def install(a):
     f=pathlib.Path(a.apk).expanduser().resolve()
