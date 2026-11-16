@@ -8,7 +8,7 @@ PACKAGE_RE = re.compile(r"^[A-Za-z0-9_]+(?:\\.[A-Za-z0-9_]+)+$")
 
 def run(cmd, timeout=60, check=True):
     try: p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-    except subprocess.TimeoutExpired as e: raise RuntimeError(f"Command timed out after {timeout}s: {' '.join(map(str,,cmd))}") from e
+    except subprocess.TimeoutExpired as e: raise RuntimeError(f"Command timed out after {timeout}s: {' '.join(map(str,cmd))}") from e
     if check and p.returncode: raise RuntimeError(f"Command failed ({p.returncode}): {' '.join(map(str,cmd))}\n{(p.stderr or p.stdout).strip()}")
     return p.stdout.strip()
 
