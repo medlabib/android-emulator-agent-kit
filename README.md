@@ -42,6 +42,9 @@ chmod +x scripts/bootstrap-avd.sh
 emulator -avd Pixel_Play_API_35
 ```
 
+The provisioning scripts validate their API and AVD-name inputs, fail if SDK
+licenses cannot be accepted, and verify that the AVD configuration was created.
+
 **Windows PowerShell**
 ```powershell
 .\scripts\bootstrap-avd.ps1 -Api 35
@@ -154,3 +157,10 @@ Commands also accept `--json` for machine-readable output, for example:
 The `doctor` command checks ADB availability and whether at least one device is ready;
 it does not select a target. With `--json`, command failures are emitted as
 `{"ok": false, "error": "..."}` on stderr and retain a non-zero exit code.
+
+The emulator integration checks are opt-in and require a booted device:
+
+```bash
+ANDROID_LAB_INTEGRATION=1 ANDROID_SERIAL=emulator-5554 \
+python -m unittest tests.test_integration_android_lab -v
+```

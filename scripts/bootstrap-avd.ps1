@@ -3,6 +3,8 @@ param(
   [string]$Avd = "Pixel_Play_API_$Api"
 )
 $ErrorActionPreference = "Stop"
+if ($Api -lt 21 -or $Api -gt 99) { throw "Api must be between 21 and 99." }
+if ($Avd -notmatch '^[A-Za-z0-9_.-]+$') { throw "Avd contains unsupported characters." }
 $Sdk = $env:ANDROID_SDK_ROOT
 if (-not $Sdk) { $Sdk = $env:ANDROID_HOME }
 if (-not $Sdk) { $Sdk = Join-Path $env:LOCALAPPDATA "Android\Sdk" }
@@ -25,6 +27,7 @@ if (Test-Path $Config) {
   $Lines += @("hw.camera.back=webcam0", "hw.camera.front=webcam0")
   Set-Content -Path $Config -Value $Lines
 }
+if (-not (Test-Path $Config)) { throw "AVD configuration was not created: $Config" }
 Write-Host "Created/verified AVD: $Avd"
 Write-Host "Start with: emulator -avd `"$Avd`""
 Write-Host "If webcam0 is unavailable, choose Emulated camera in Device Manager."
