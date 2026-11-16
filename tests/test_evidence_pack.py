@@ -92,6 +92,17 @@ class EvidencePackTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "must contain an object"):
                 build_bundle(report, root / "evidence.zip", metadata)
 
+    def test_does_not_overwrite_an_included_artifact(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            report = root / "journey.md"
+            report.write_text("[artifact](evidence.zip)", encoding="utf-8")
+            archive = root / "evidence.zip"
+            archive.write_bytes(b"preserve me")
+            with self.assertRaisesRegex(ValueError, "cannot overwrite"):
+                build_bundle(report, archive)
+            self.assertEqual(archive.read_bytes(), b"preserve me")
+
     def test_rejects_non_zip_output(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
