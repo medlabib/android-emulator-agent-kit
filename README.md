@@ -146,3 +146,7 @@ Apache-2.0. See [LICENSE](LICENSE).
 ## Python CLI interaction commands
 
 The stdlib-only CLI supports explicit-target boot readiness, APK install/launch, package metadata, taps, swipes, constrained text entry, navigation key events, screenshots, UI hierarchy dumps, logcat, and app force-stop. Run `python tools/android_lab.py --help` for the full command list. Every device operation requires `--serial`; the CLI never guesses which emulator to control. Text entry intentionally accepts a conservative ASCII subset; use Appium for Unicode and selector-based interaction.
+
+Commands also accept `--json` for machine-readable output, for example:
+`python tools/android_lab.py devices --json` or
+`python tools/android_lab.py verify --serial emulator-5554 --json`.
