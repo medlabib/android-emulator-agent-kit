@@ -1,10 +1,10 @@
 # 🤖 Android Emulator Agent Kit
 
-**A local Android phone for AI coding agents.**
+**Experimental evidence packaging for Android CLI agent-driven tests.**
 
-Provision and control a Google Play-enabled Android Studio emulator from Claude Code, OpenAI Codex, or DeepSeek Harness. Install APKs, launch apps, inspect screens, interact through ADB, and collect logs — on your own machine.
+This project is evolving to complement [Google's official Android CLI](https://developer.android.com/tools/agents/android-cli), not duplicate it. The experimental evidence packager preserves Android CLI Journey reports and packages linked screenshots and explicitly supplied metadata/artifacts into a portable ZIP.
 
-![Version](https://img.shields.io/badge/version-0.2.0-2563eb)
+![Status](https://img.shields.io/badge/status-experimental-orange)
 ![License](https://img.shields.io/badge/license-Apache--2.0-22c55e)
 ![Local first](https://img.shields.io/badge/local--first-ADB%20%2B%20AVD-7c3aed)
 
@@ -27,7 +27,7 @@ The recommended AVD uses a **Google Play** system image, including Play Store an
 | Screenshots, UI hierarchy, logcat | Yes |
 | UI automation | ADB tap, swipe, text, keyevent; optional Appium 2 + UiAutomator2 |
 
-## Quick start
+## Legacy toolkit (under review)\n\nThe existing provisioning scripts, ADB Python CLI, and agent integrations are retained for compatibility while the project direction is validated. For new Android setup, device interaction, and Journey workflows, start with the [official Android CLI](https://developer.android.com/tools/agents/android-cli).\n\n## Quick start
 
 1. Install [Android Studio](https://developer.android.com/studio).
 2. In SDK Manager, install Android SDK Platform-Tools, Android Emulator, and a Google Play system image for an API level supported by your app.
@@ -98,7 +98,7 @@ The standard-library Python CLI at `tools/android_lab.py` supports:
 
 The DeepSeek plugin exposes focused tools for device discovery, AVD boot/wait, APK install/launch, screenshots, UI inspection, taps, swipes, text input, key events, and Google Play Services checks. Device-changing operations require an explicit target serial.
 
-For richer semantic selectors and test flows, see [docs/APPIUM.md](docs/APPIUM.md). For the recommended plan / act / observe loop, see [docs/TEST-STRATEGY.md](docs/TEST-STRATEGY.md).
+For Google's supported agent-native workflows and Journeys, use the [official Android CLI documentation](https://developer.android.com/tools/agents/android-cli). The old Appium and test strategy documents remain useful for legacy setups.
 
 ## Know the boundaries
 
