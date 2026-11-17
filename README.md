@@ -1,31 +1,36 @@
 # 🤖 Android Emulator Agent Kit
 
-**A local Android phone for AI coding agents.**
+**Experimental evidence packaging for Android CLI agent-driven tests.**
 
-Provision and control a Google Play-enabled Android Studio emulator from Claude Code, OpenAI Codex, or DeepSeek Harness. Install APKs, launch apps, inspect screens, interact through ADB, and collect logs — on your own machine.
+This project is evolving to complement [Google's official Android CLI](https://developer.android.com/tools/agents/android-cli), not duplicate it. The experimental evidence packager preserves Android CLI Journey reports and packages linked screenshots and explicitly supplied metadata/artifacts into a portable ZIP.
 
-![Version](https://img.shields.io/badge/version-0.2.0-2563eb)
+![Status](https://img.shields.io/badge/status-experimental-orange)
 ![License](https://img.shields.io/badge/license-Apache--2.0-22c55e)
-![Local first](https://img.shields.io/badge/local--first-ADB%20%2B%20AVD-7c3aed)
+![Local first](https://img.shields.io/badge/local--first-no%20cloud%20upload-7c3aed)
 
-## Why this exists
+## Why this is changing
 
-AI agents can write Android code, but validating it often means manually opening Android Studio, booting a device, installing an APK, tapping through screens, and collecting logs. This project provides a repeatable, local-first workflow for those steps.
+Google's Android CLI now provides SDK and emulator workflows, app deployment, device inspection, agent skills, and Journeys. Rebuilding those capabilities would create unnecessary duplication.
 
-The recommended AVD uses a **Google Play** system image, including Play Store and Google Play Services. No device farm or cloud minutes are required.
+This repository is testing a narrower idea: make the evidence from an agent-run Android test easier to preserve, verify, and share. The existing ADB scripts, Python CLI, and DeepSeek Harness integration remain available for compatibility, but are legacy functionality under review—not the long-term product direction.
 
-## Capabilities
+## Experimental evidence packager
 
-| Capability | Included |
-|---|---|
-| AVD provisioning | Windows PowerShell + Linux/macOS shell scripts |
-| Google Play image | Yes, x86_64 system image |
-| Claude Code skill | Included |
-| OpenAI Codex skill | Included |
-| DeepSeek Harness plugin | Bundled local plugin |
-| APK install / launch | Python CLI + plugin tools |
-| Screenshots, UI hierarchy, logcat | Yes |
-| UI automation | ADB tap, swipe, text, keyevent; optional Appium 2 + UiAutomator2 |
+Run a Journey with the official Android CLI first. Then package its Markdown report and local screenshot references:
+
+```bash
+python tools/evidence_pack.py \
+  --report artifacts/journey.md \
+  --output artifacts/android-evidence.zip
+```
+
+The archive contains the original report, a JSON manifest, SHA-256 checksums, locally linked evidence, and any extra files explicitly supplied with `--artifact`.
+
+See [docs/EVIDENCE-BUNDLES.md](docs/EVIDENCE-BUNDLES.md) for metadata, safety behavior, limitations, and examples. This utility does not run tests or control an emulator.
+
+## Legacy toolkit (under review)
+
+The existing provisioning scripts, ADB Python CLI, and agent integrations are retained for compatibility while the project direction is validated. For new Android setup, device interaction, and Journey workflows, start with the [official Android CLI](https://developer.android.com/tools/agents/android-cli).
 
 ## Quick start
 
@@ -98,7 +103,7 @@ The standard-library Python CLI at `tools/android_lab.py` supports:
 
 The DeepSeek plugin exposes focused tools for device discovery, AVD boot/wait, APK install/launch, screenshots, UI inspection, taps, swipes, text input, key events, and Google Play Services checks. Device-changing operations require an explicit target serial.
 
-For richer semantic selectors and test flows, see [docs/APPIUM.md](docs/APPIUM.md). For the recommended plan / act / observe loop, see [docs/TEST-STRATEGY.md](docs/TEST-STRATEGY.md).
+For Google's supported agent-native workflows and Journeys, use the [official Android CLI documentation](https://developer.android.com/tools/agents/android-cli). The old Appium and test strategy documents remain useful for legacy setups.
 
 ## Know the boundaries
 

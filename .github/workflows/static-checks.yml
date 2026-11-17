@@ -14,5 +14,6 @@ jobs:
         with:
           node-version: "22"
       - run: python -m compileall -q tools tests
+      - run: bash -n scripts/bootstrap-avd.sh
       - run: python -m unittest discover -s tests -v
       - run: node --check dsh-plugin/index.js
